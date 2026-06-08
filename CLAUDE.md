@@ -1,6 +1,6 @@
 # My First App
 
-I am building an app that lets you practice speaking in Spanish to AI avatars.
+I am building an app that lets you practice texting in Spanish with an AI tutor.
 
 ## Tech Stack
 - Next.js 14 with App Router

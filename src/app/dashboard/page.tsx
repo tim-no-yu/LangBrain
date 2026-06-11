@@ -1,48 +1,92 @@
+const mockUser = { username: "timyu" };
+
+const conversations = [
+  {
+    id: "1",
+    name: "Sofia",
+    lastMessage: "¿Cómo estuvo tu día?",
+    timeAgo: "20m ago",
+  },
+  {
+    id: "2",
+    name: "Carlos",
+    lastMessage: "Muy bien, gracias. ¿Y tú?",
+    timeAgo: "1h ago",
+  },
+  {
+    id: "3",
+    name: "Valentina",
+    lastMessage: "¡Hasta luego! Nos vemos mañana.",
+    timeAgo: "3h ago",
+  },
+  {
+    id: "4",
+    name: "Miguel",
+    lastMessage: "¿Quieres practicar ahora?",
+    timeAgo: "Yesterday",
+  },
+];
+
+function AvatarInitials({ name }: { name: string }) {
+  return (
+    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-zinc-200 text-sm font-semibold text-zinc-700">
+      {name.slice(0, 2).toUpperCase()}
+    </div>
+  );
+}
+
 export default function DashboardPage() {
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-black">
-      <div className="mx-auto max-w-3xl px-6 py-16">
-
-        {/* Header */}
-        <div className="mb-10">
-          <h1 className="text-3xl font-semibold tracking-tight text-black dark:text-zinc-50">
-            Welcome back
-          </h1>
-          <p className="mt-2 text-zinc-500 dark:text-zinc-400">
-            Ready to practice your Spanish today?
-          </p>
-        </div>
-
-        {/* Stats */}
-        <div className="mb-10 grid grid-cols-3 gap-4">
-          <div className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">Lessons</p>
-            <p className="mt-1 text-3xl font-semibold text-black dark:text-zinc-50">0</p>
-          </div>
-          <div className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">Day streak</p>
-            <p className="mt-1 text-3xl font-semibold text-black dark:text-zinc-50">0</p>
-          </div>
-          <div className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">Words learned</p>
-            <p className="mt-1 text-3xl font-semibold text-black dark:text-zinc-50">0</p>
-          </div>
-        </div>
-
-        {/* CTA */}
-        <div className="rounded-xl border border-zinc-200 bg-white p-8 dark:border-zinc-800 dark:bg-zinc-900">
-          <h2 className="text-xl font-semibold text-black dark:text-zinc-50">
-            Start a lesson
-          </h2>
-          <p className="mt-2 text-zinc-500 dark:text-zinc-400">
-            Chat with your AI tutor and practice real-life Spanish conversations.
-          </p>
-          <button className="mt-6 rounded-full bg-black px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-zinc-700 dark:bg-zinc-50 dark:text-black dark:hover:bg-zinc-300">
-            Begin practice
-          </button>
-        </div>
-
+    <div className="min-h-screen bg-white">
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-zinc-200 px-6 py-4">
+        <span className="text-sm font-medium text-zinc-800">
+          {mockUser.username}
+        </span>
+        <button className="rounded-full border border-zinc-200 px-4 py-1.5 text-sm text-zinc-600 transition-colors hover:bg-zinc-100">
+          Log out
+        </button>
       </div>
+
+      {/* Title */}
+      <div className="flex items-center justify-between px-6 pt-8 pb-4">
+        <h1 className="text-xl font-semibold text-zinc-900">Messages</h1>
+        <a
+          href="/chat"
+          className="rounded-full bg-black px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-zinc-700"
+        >
+          + New chat
+        </a>
+      </div>
+
+      {/* Conversation list */}
+      <ul className="divide-y divide-zinc-100">
+        {conversations.map((convo) => (
+          <li key={convo.id}>
+            <a
+              href={`/dashboard/conversations/${convo.id}`}
+              className="flex items-center gap-4 px-6 py-4 transition-colors hover:bg-zinc-50"
+            >
+              <AvatarInitials name={convo.name} />
+
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-zinc-900">
+                  {convo.name}
+                </p>
+                <p className="mt-0.5 truncate text-sm text-zinc-500">
+                  {convo.lastMessage}
+                </p>
+              </div>
+
+              <div className="flex shrink-0 flex-col items-end gap-1.5">
+                <span className="text-xs text-zinc-400">{convo.timeAgo}</span>
+                {/* Unread dot — always shown for now */}
+                <span className="h-2 w-2 rounded-full bg-blue-500" />
+              </div>
+            </a>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

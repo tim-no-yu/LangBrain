@@ -1,3 +1,5 @@
+import CreateAvatarForm from "@/components/CreateAvatarForm";
+
 const mockUser = { username: "timyu" };
 
 const conversations = [
@@ -51,12 +53,15 @@ export default function DashboardPage() {
       {/* Title */}
       <div className="flex items-center justify-between px-6 pt-8 pb-4">
         <h1 className="text-xl font-semibold text-zinc-900">Messages</h1>
-        <a
-          href="/chat"
-          className="rounded-full bg-black px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-zinc-700"
-        >
-          + New chat
-        </a>
+        <div className="flex items-center gap-2">
+          <CreateAvatarForm />
+          <a
+            href="/chat"
+            className="rounded-full bg-black px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-zinc-700"
+          >
+            + New chat
+          </a>
+        </div>
       </div>
 
       {/* Conversation list */}

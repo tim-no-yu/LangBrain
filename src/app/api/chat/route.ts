@@ -1,8 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import type { Message } from "@/types/chat";
+
+const CreateChatSchema = z.object({
+  name: z.string().min(1, "Name is required").max(100, "Name must be 100 characters or fewer"),
+  description: z.string().max(1000, "Description must be 1000 characters or fewer").optional(),
+  username: z
+    .string()
+    .min(1, "Username is required")
+    .regex(/^[a-zA-Z0-9_-]+$/, "Username may only contain letters, numbers, underscores, and hyphens"),
+  messages: z.array(z.object({ role: z.enum(["user", "assistant"]), content: z.string() })).optional(),
+});
 
 type ChatLog = {
   id: string;
+  name: string;
+  description?: string;
+  username: string;
   messages: Message[];
   createdAt: string;
   updatedAt: string;
@@ -22,10 +36,18 @@ export async function GET() {
 
 // POST /api/chat — create a new chat log
 export async function POST(req: NextRequest) {
-  const { messages }: { messages: Message[] } = await req.json();
+  const body = await req.json();
+  const result = CreateChatSchema.safeParse(body);
+
+  if (!result.success) {
+    const errors = result.error.flatten().fieldErrors;
+    return NextResponse.json({ errors }, { status: 400 });
+  }
+
+  const { name, description, username, messages = [] } = result.data;
   const now = new Date().toISOString();
   const id = crypto.randomUUID();
-  const log: ChatLog = { id, messages, createdAt: now, updatedAt: now };
+  const log: ChatLog = { id, name, description, username, messages, createdAt: now, updatedAt: now };
   chatLogs.set(id, log);
   return NextResponse.json(log, { status: 201 });
 }

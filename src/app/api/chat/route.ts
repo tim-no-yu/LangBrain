@@ -36,7 +36,12 @@ export async function GET() {
 
 // POST /api/chat — create a new chat log
 export async function POST(req: NextRequest) {
-  const body = await req.json();
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON in request body" }, { status: 400 });
+  }
   const result = CreateChatSchema.safeParse(body);
 
   if (!result.success) {
@@ -54,7 +59,12 @@ export async function POST(req: NextRequest) {
 
 // PUT /api/chat — update a chat log by id
 export async function PUT(req: NextRequest) {
-  const { id, messages }: { id: string; messages: Message[] } = await req.json();
+  let id: string, messages: Message[];
+  try {
+    ({ id, messages } = await req.json());
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON in request body" }, { status: 400 });
+  }
   const existing = chatLogs.get(id);
   if (!existing) return notFound();
   const updated: ChatLog = { ...existing, messages, updatedAt: new Date().toISOString() };

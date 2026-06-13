@@ -1,4 +1,5 @@
 import CreateAvatarForm from "@/components/CreateAvatarForm";
+import LogoutButton from "@/components/LogoutButton";
 
 const mockUser = { username: "timyu" };
 
@@ -45,9 +46,7 @@ export default function DashboardPage() {
         <span className="text-sm font-medium text-zinc-800">
           {mockUser.username}
         </span>
-        <button className="rounded-full border border-zinc-200 px-4 py-1.5 text-sm text-zinc-600 transition-colors hover:bg-zinc-100">
-          Log out
-        </button>
+        <LogoutButton />
       </div>
 
       {/* Title */}

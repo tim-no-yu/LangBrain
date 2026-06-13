@@ -1,7 +1,6 @@
 import CreateAvatarForm from "@/components/CreateAvatarForm";
 import LogoutButton from "@/components/LogoutButton";
-
-const mockUser = { username: "timyu" };
+import { createClient } from "@/lib/supabase/server";
 
 const conversations = [
   {
@@ -38,13 +37,16 @@ function AvatarInitials({ name }: { name: string }) {
   );
 }
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-zinc-200 px-6 py-4">
         <span className="text-sm font-medium text-zinc-800">
-          {mockUser.username}
+          {user?.email}
         </span>
         <LogoutButton />
       </div>

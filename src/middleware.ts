@@ -25,22 +25,15 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Refresh the session — keeps the user logged in
   const { data: { user } } = await supabase.auth.getUser();
 
-  // Redirect unauthenticated users away from protected routes
-  const isProtected = request.nextUrl.pathname.startsWith("/dashboard") ||
-    request.nextUrl.pathname.startsWith("/chat");
+  const { pathname } = request.nextUrl;
 
-  if (isProtected && !user) {
+  if (pathname.startsWith("/dashboard") && !user) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // Redirect logged-in users away from auth pages
-  const isAuthPage = request.nextUrl.pathname.startsWith("/login") ||
-    request.nextUrl.pathname.startsWith("/signup");
-
-  if (isAuthPage && user) {
+  if ((pathname.startsWith("/login") || pathname.startsWith("/signup")) && user) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
@@ -48,7 +41,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
-  ],
+  matcher: ["/dashboard/:path*", "/login", "/signup"],
 };

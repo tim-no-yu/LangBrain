@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { ConversationRow } from "@/types/database";
 
 // Confirms a session exists and returns the client + userId.
 // Throws if the user is not logged in.
@@ -60,7 +61,7 @@ export async function getConversations() {
   return data;
 }
 
-export async function createConversation(avatarId: string, title?: string) {
+export async function createConversation(avatarId: string, title?: string): Promise<ConversationRow> {
   const { supabase, userId } = await requireUser();
   const { data, error } = await supabase
     .from("conversations")

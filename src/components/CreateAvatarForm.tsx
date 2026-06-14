@@ -5,25 +5,23 @@ import { useState } from "react";
 type FormFields = {
   name: string;
   description: string;
-  status: string;
 };
 
 type FormErrors = {
   name?: string;
-  status?: string;
 };
 
 export default function CreateAvatarForm() {
   const [isOpen, setIsOpen] = useState(false);
-  const [fields, setFields] = useState<FormFields>({ name: "", description: "", status: "" });
+  const [fields, setFields] = useState<FormFields>({ name: "", description: "" });
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [serverError, setServerError] = useState("");
 
   function validate(): FormErrors {
     const e: FormErrors = {};
     if (!fields.name.trim()) e.name = "Avatar name is required.";
-    if (!fields.status.trim()) e.status = "Status is required.";
     return e;
   }
 
@@ -35,23 +33,42 @@ export default function CreateAvatarForm() {
       return;
     }
     setErrors({});
+    setServerError("");
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1000));
-    setLoading(false);
-    setSuccess(true);
-    setTimeout(() => {
-      setSuccess(false);
-      setIsOpen(false);
-      setFields({ name: "", description: "", status: "" });
-    }, 1500);
+    try {
+      const res = await fetch("/api/avatars", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: fields.name.trim(),
+          description: fields.description.trim() || undefined,
+        }),
+      });
+      if (!res.ok) {
+        const body = await res.json();
+        setServerError(body.error ?? "Something went wrong.");
+        return;
+      }
+      setSuccess(true);
+      setTimeout(() => {
+        setSuccess(false);
+        setIsOpen(false);
+        setFields({ name: "", description: "" });
+      }, 1500);
+    } catch {
+      setServerError("Network error — please try again.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   function handleClose() {
     if (loading) return;
     setIsOpen(false);
-    setFields({ name: "", description: "", status: "" });
+    setFields({ name: "", description: "" });
     setErrors({});
     setSuccess(false);
+    setServerError("");
   }
 
   return (
@@ -116,24 +133,9 @@ export default function CreateAvatarForm() {
                   />
                 </div>
 
-                {/* Status */}
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-zinc-700">
-                    Status <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={fields.status}
-                    onChange={(e) => setFields({ ...fields, status: e.target.value })}
-                    placeholder="e.g. Active"
-                    className={`w-full rounded-xl border px-3 py-2 text-sm text-zinc-800 outline-none focus:border-zinc-400 ${
-                      errors.status ? "border-red-400 bg-red-50" : "border-zinc-200 bg-zinc-50"
-                    }`}
-                  />
-                  {errors.status && (
-                    <p className="mt-1 text-xs text-red-500">{errors.status}</p>
-                  )}
-                </div>
+                {serverError && (
+                  <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{serverError}</p>
+                )}
 
                 <button
                   type="submit"

@@ -52,7 +52,8 @@ export async function getConversations() {
       id,
       title,
       updated_at,
-      avatar:avatars ( id, name, image_url, is_preset )
+      avatar:avatars ( id, name, image_url, is_preset ),
+      comprehension
     `)
     .order("updated_at", { ascending: false });
   if (error) throw error;

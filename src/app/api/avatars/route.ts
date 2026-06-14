@@ -18,7 +18,13 @@ export async function POST(request: Request) {
     const avatar = await createCustomAvatar(name, description, image_url);
     return NextResponse.json(avatar, { status: 201 });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("[POST /api/avatars]", err);
+    const message =
+      err instanceof Error
+        ? err.message
+        : typeof err === "object" && err !== null && "message" in err
+        ? String((err as { message: unknown }).message)
+        : "Unknown error";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

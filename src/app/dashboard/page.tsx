@@ -1,33 +1,7 @@
 import CreateAvatarForm from "@/components/CreateAvatarForm";
 import LogoutButton from "@/components/LogoutButton";
 import { createClient } from "@/lib/supabase/server";
-
-const conversations = [
-  {
-    id: "1",
-    name: "Sofia",
-    lastMessage: "¿Cómo estuvo tu día?",
-    timeAgo: "20m ago",
-  },
-  {
-    id: "2",
-    name: "Carlos",
-    lastMessage: "Muy bien, gracias. ¿Y tú?",
-    timeAgo: "1h ago",
-  },
-  {
-    id: "3",
-    name: "Valentina",
-    lastMessage: "¡Hasta luego! Nos vemos mañana.",
-    timeAgo: "3h ago",
-  },
-  {
-    id: "4",
-    name: "Miguel",
-    lastMessage: "¿Quieres practicar ahora?",
-    timeAgo: "Yesterday",
-  },
-];
+import { getConversations } from "@/lib/queries";
 
 function AvatarInitials({ name }: { name: string }) {
   return (
@@ -37,9 +11,22 @@ function AvatarInitials({ name }: { name: string }) {
   );
 }
 
+function formatTimeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return "Just now";
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days === 1) return "Yesterday";
+  return `${days}d ago`;
+}
+
 export default async function DashboardPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  const conversations = await getConversations();
 
   return (
     <div className="min-h-screen bg-white">
@@ -66,33 +53,40 @@ export default async function DashboardPage() {
       </div>
 
       {/* Conversation list */}
-      <ul className="divide-y divide-zinc-100">
-        {conversations.map((convo) => (
-          <li key={convo.id}>
-            <a
-              href={`/dashboard/conversations/${convo.id}`}
-              className="flex items-center gap-4 px-6 py-4 transition-colors hover:bg-zinc-50"
-            >
-              <AvatarInitials name={convo.name} />
-
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-zinc-900">
-                  {convo.name}
-                </p>
-                <p className="mt-0.5 truncate text-sm text-zinc-500">
-                  {convo.lastMessage}
-                </p>
-              </div>
-
-              <div className="flex shrink-0 flex-col items-end gap-1.5">
-                <span className="text-xs text-zinc-400">{convo.timeAgo}</span>
-                {/* Unread dot — always shown for now */}
-                <span className="h-2 w-2 rounded-full bg-blue-500" />
-              </div>
-            </a>
-          </li>
-        ))}
-      </ul>
+      {conversations.length === 0 ? (
+        <p className="px-6 py-8 text-sm text-zinc-400">
+          No conversations yet. Create an avatar to get started!
+        </p>
+      ) : (
+        <ul className="divide-y divide-zinc-100">
+          {conversations.map((convo) => {
+            const displayName = convo.title ?? convo.avatar?.name ?? "Untitled";
+            return (
+              <li key={convo.id}>
+                <a
+                  href={`/dashboard/conversations/${convo.id}`}
+                  className="flex items-center gap-4 px-6 py-4 transition-colors hover:bg-zinc-50"
+                >
+                  <AvatarInitials name={displayName} />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-zinc-900">
+                      {displayName}
+                    </p>
+                    <p className="mt-0.5 truncate text-sm text-zinc-500">
+                      No messages yet
+                    </p>
+                  </div>
+                  <div className="shrink-0">
+                    <span className="text-xs text-zinc-400">
+                      {formatTimeAgo(convo.updated_at)}
+                    </span>
+                  </div>
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </div>
   );
 }

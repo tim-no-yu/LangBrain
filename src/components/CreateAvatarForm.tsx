@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 type FormFields = {
   name: string;
@@ -12,6 +13,7 @@ type FormErrors = {
 };
 
 export default function CreateAvatarForm() {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [fields, setFields] = useState<FormFields>({ name: "", description: "" });
   const [errors, setErrors] = useState<FormErrors>({});
@@ -50,6 +52,7 @@ export default function CreateAvatarForm() {
         return;
       }
       setSuccess(true);
+      router.refresh();
       setTimeout(() => {
         setSuccess(false);
         setIsOpen(false);

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAvatars, createCustomAvatar } from "@/lib/queries";
+import { getAvatars, createCustomAvatar, createConversation } from "@/lib/queries";
 
 export async function GET() {
   try {
@@ -16,6 +16,7 @@ export async function POST(request: Request) {
     const { name, description, image_url } = await request.json();
     if (!name) return NextResponse.json({ error: "name is required" }, { status: 400 });
     const avatar = await createCustomAvatar(name, description, image_url);
+    await createConversation(avatar.id, avatar.name);
     return NextResponse.json(avatar, { status: 201 });
   } catch (err) {
     console.error("[POST /api/avatars]", err);

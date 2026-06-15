@@ -52,11 +52,11 @@ export default function CreateAvatarForm() {
         return;
       }
       setSuccess(true);
-      router.refresh();
       setTimeout(() => {
         setSuccess(false);
         setIsOpen(false);
         setFields({ name: "", description: "" });
+        router.refresh();
       }, 1500);
     } catch {
       setServerError("Network error — please try again.");
